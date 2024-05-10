@@ -1,12 +1,12 @@
 package hu.bme.mit.spaceship;
 
 import static junit.framework.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GT4500Test {
@@ -89,6 +89,23 @@ public class GT4500Test {
   }
 
   @Test
+  public void singleModeBothAreEmpty() {
+    when(primaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(secondaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(primaryTorpedoStore.fire(1)).thenReturn(true);
+
+
+    boolean result = ship.fireTorpedo(FiringMode.SINGLE);
+    assertTrue(result);
+
+    verify(primaryTorpedoStore, times(1)).fire(1);
+    when(primaryTorpedoStore.isEmpty()).thenReturn(true);
+
+    boolean result2 = ship.fireTorpedo(FiringMode.SINGLE);
+    assertFalse(result2);
+  }
+
+  @Test
   public void fireButOneIsEmptyAndOneFails() {
     when(primaryTorpedoStore.isEmpty()).thenReturn(false);
     when(primaryTorpedoStore.fire(1)).thenReturn(false);
@@ -135,5 +152,43 @@ public class GT4500Test {
     verify(secondaryTorpedoStore, times(1)).fire(1);
   }
 
+  @Test
+  public void primaryWasFiredTrySecondary(){
+    // Arrange
+    when(primaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(secondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(primaryTorpedoStore.fire(1)).thenReturn(true);
+    when(secondaryTorpedoStore.fire(1)).thenReturn(true);
 
+    // Act
+    boolean result = ship.fireTorpedo(FiringMode.SINGLE);
+    boolean result2 = ship.fireTorpedo(FiringMode.SINGLE);
+
+
+    // Assert
+    assertTrue(result);
+    assertTrue(result2);
+
+    verify(primaryTorpedoStore, times(1)).fire(1);
+
+    when(primaryTorpedoStore.isEmpty()).thenReturn(true);
+
+    boolean result3 = ship.fireTorpedo(FiringMode.SINGLE);
+    assertTrue(result3);
+    verify(secondaryTorpedoStore, times(2)).fire(1);
+
+  }
+
+  @Test
+  public void checkTorpedoInstantanaionWithNullValue() {
+    assertThrows(IllegalArgumentException.class, () -> {new GT4500(null, secondaryTorpedoStore);});
+    assertThrows(IllegalArgumentException.class, () -> {new GT4500(primaryTorpedoStore, null);});
+    assertThrows(IllegalArgumentException.class, () -> {new GT4500(null, null);});
+  }
+
+  @Test
+  public void testLaserFire() {
+    boolean result = ship.fireLaser(FiringMode.SINGLE);
+    assertFalse(result);
+  }
 }

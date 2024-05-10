@@ -1,0 +1,5 @@
+- If the firing mode is SINGLE, and the fire method is called two times, and also both of the stores are not empty, than assert that both of the stores were fired onece.
+- If the firing mode is SINGLE, but the secndary store is empty, than the primary is fired two times
+- If the primary is not empty, but a faliure happens, than the secondary is not fired
+- If the firing mode is ALL but one of the stores is empty, than none of the stores are fired
+- if the firing mode is ALL, and both of the stores are not empty, and than with a SINGLE firing mode, the primary is fired next

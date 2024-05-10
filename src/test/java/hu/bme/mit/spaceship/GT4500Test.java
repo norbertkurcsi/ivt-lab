@@ -1,7 +1,9 @@
 package hu.bme.mit.spaceship;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,5 +53,87 @@ public class GT4500Test {
     verify(primaryTorpedoStore, times(1)).fire(1);
     verify(secondaryTorpedoStore, times(1)).fire(1);
   }
+
+  @Test
+  public void fireBothStoreInSingleMode() {
+    when(primaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(secondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(primaryTorpedoStore.fire(1)).thenReturn(true);
+    when(secondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    boolean result = ship.fireTorpedo(FiringMode.SINGLE);
+    boolean result2 = ship.fireTorpedo(FiringMode.SINGLE);
+
+    assertTrue(result);
+    assertTrue(result2);
+
+    verify(primaryTorpedoStore, times(1)).fire(1);
+    verify(secondaryTorpedoStore, times(1)).fire(1);
+  }
+
+  @Test
+  public void fireBothStoreInSingleModeOneIsEmpty() {
+    when(primaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(secondaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(primaryTorpedoStore.fire(1)).thenReturn(true);
+    when(secondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    boolean result = ship.fireTorpedo(FiringMode.SINGLE);
+    boolean result2 = ship.fireTorpedo(FiringMode.SINGLE);
+
+    assertTrue(result);
+    assertTrue(result2);
+
+    verify(primaryTorpedoStore, times(2)).fire(1);
+    verify(secondaryTorpedoStore, times(0)).fire(1);
+  }
+
+  @Test
+  public void fireButOneIsEmptyAndOneFails() {
+    when(primaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(primaryTorpedoStore.fire(1)).thenReturn(false);
+
+    boolean result = ship.fireTorpedo(FiringMode.SINGLE);
+
+    assertFalse(result);
+
+    verify(primaryTorpedoStore, times(1)).fire(1);
+    verify(secondaryTorpedoStore, times(0)).fire(1);
+  }
+
+  @Test
+  public void fireBothButOneIsEmpty() {
+    when(primaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(secondaryTorpedoStore.isEmpty()).thenReturn(false);
+
+    boolean result = ship.fireTorpedo(FiringMode.ALL);
+
+    assertFalse(false);
+
+    verify(primaryTorpedoStore, times(0)).fire(1);
+    verify(secondaryTorpedoStore, times(0)).fire(1);
+  }
+
+  @Test
+  public void fireTorpedo_All_Success_Than_Single(){
+    // Arrange
+    when(primaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(secondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(primaryTorpedoStore.fire(1)).thenReturn(true);
+    when(secondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    // Act
+    boolean result = ship.fireTorpedo(FiringMode.ALL);
+    boolean result2 = ship.fireTorpedo(FiringMode.SINGLE);
+
+
+    // Assert
+    assertTrue(result);
+    assertTrue(result2);
+
+    verify(primaryTorpedoStore, times(2)).fire(1);
+    verify(secondaryTorpedoStore, times(1)).fire(1);
+  }
+
 
 }
